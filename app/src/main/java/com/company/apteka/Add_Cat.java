@@ -51,7 +51,7 @@ public class Add_Cat extends AppCompatActivity {
                         Statement st=connect.createStatement();
                         st.executeUpdate(querry);
 
-
+                        finish();
                     }
                     else {
                         connectionResult="Check Connection";
@@ -72,6 +72,28 @@ public class Add_Cat extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name=name_manufac.getText().toString();
+
+                try{
+                    ConnectionHelper connectionHelper =new ConnectionHelper();
+                    connect=connectionHelper.connection();
+                    if(connect!=null){
+                        String querry="INSERT INTO manufacturer (name) VALUES ('"+name+"')";
+                        Statement st=connect.createStatement();
+                        st.executeUpdate(querry);
+
+                        finish();
+                    }
+                    else {
+                        connectionResult="Check Connection";
+                    }
+                }
+                catch (Exception e){
+                    Toast.makeText(Add_Cat.this, connectionResult, Toast.LENGTH_SHORT).show();
+                    Log.e("errоооor here 3 : ", e.getMessage());
+                }
+
+
+
             }
         });
 
@@ -85,6 +107,25 @@ public class Add_Cat extends AppCompatActivity {
                 String phone=phone_provider.getText().toString();
                 String lico=lico_provider.getText().toString();
                 String name=name_provider.getText().toString();
+
+                try{
+                    ConnectionHelper connectionHelper =new ConnectionHelper();
+                    connect=connectionHelper.connection();
+                    if(connect!=null){
+                        String querry="INSERT INTO provider (phone, legal_entity, name) VALUES ("+phone+",'"+lico+"','"+name+"')";
+                        Statement st=connect.createStatement();
+                        st.executeUpdate(querry);
+
+                        finish();
+                    }
+                    else {
+                        connectionResult="Check Connection";
+                    }
+                }
+                catch (Exception e){
+                    Toast.makeText(Add_Cat.this, connectionResult, Toast.LENGTH_SHORT).show();
+                    Log.e("errоооor here 3 : ", e.getMessage());
+                }
             }
         });
 

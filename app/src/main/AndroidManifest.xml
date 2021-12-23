@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <activity android:name=".EditProduct"></activity>
         <activity android:name=".Add_Cat" />
         <activity android:name=".Add_Product" />
         <activity android:name=".AdminList" />

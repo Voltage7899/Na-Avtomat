@@ -1,6 +1,7 @@
 package com.company.apteka;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import java.util.List;
 public class RecAdapter extends RecyclerView.Adapter<RecAdapter.ViewHolder> {
 
     private final Context context;
-    private List<ProductModel> ListProduct;
+    List<ProductModel> ListProduct;
 
 
     public RecAdapter(Context context,List<ProductModel> listProduct){
@@ -53,6 +54,7 @@ public class RecAdapter extends RecyclerView.Adapter<RecAdapter.ViewHolder> {
 
         private TextView name,price;
         private final Context context;
+        private ProductModel productModel;
 
         public ViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
@@ -65,7 +67,9 @@ public class RecAdapter extends RecyclerView.Adapter<RecAdapter.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-
+            Intent i =new Intent(context,EditProduct.class);
+            i.putExtra("id",productModel.getId_product());
+            context.startActivity(i);
         }
     }
 }

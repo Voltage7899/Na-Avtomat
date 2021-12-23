@@ -1,7 +1,9 @@
 package com.company.apteka;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,14 +32,38 @@ public class AdminList extends AppCompatActivity {
     private Button add_product,add_category,add_manufacturer,add_prodiver;
     private List<ProductModel> list_product;
     private Spinner spinner_category;
+    private String current_category;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_list);
-
+        add_test_prod();
         init();
 
     }
+
+    public void add_test_prod() {
+        try{
+            ConnectionHelper connectionHelper =new ConnectionHelper();
+            connect=connectionHelper.connection();
+            if(connect!=null){
+                String querry="exec products_default";
+                Statement st=connect.createStatement();
+                st.executeUpdate(querry);
+
+
+
+            }
+            else {
+                connectionResult="Check Connection";
+            }
+        }
+        catch (Exception e){
+            Toast.makeText(AdminList.this, connectionResult, Toast.LENGTH_SHORT).show();
+            Log.e("errоооor here 3 : ", e.getMessage());
+        }
+    }
+
     public void init(){
         recyclerView=findViewById(R.id.recyclerView_admin);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -63,13 +89,42 @@ public class AdminList extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position=viewHolder.getAdapterPosition();
+                int id=Integer.parseInt(((RecAdapter)recyclerView.getAdapter()).ListProduct.get(position).getId_product());
+                try{
+                    ConnectionHelper connectionHelper =new ConnectionHelper();
+                    connect=connectionHelper.connection();
+                    if(connect!=null){
+                        String querry="DELETE FROM products WHERE id_product="+id+"";
+                        Statement st=connect.createStatement();
+                        st.executeUpdate(querry);
+                        init();
 
 
+                    }
+                    else {
+                        connectionResult="Check Connection";
+                    }
+                }
+                catch (Exception e){
+                    Toast.makeText(AdminList.this, connectionResult, Toast.LENGTH_SHORT).show();
+                    Log.e("errоооor here 3 : ", e.getMessage());
+                }
+            }
+        }).attachToRecyclerView(recyclerView);
 
     }
 
-    public void setRecycler(String category){
-        String categoryForRecycler=category;
+    public void setRecycler(){
+        String categoryForRecycler=current_category;
         list_product =new ArrayList<>();
         if(categoryForRecycler.equals("Все записи")){
             try{
@@ -106,16 +161,16 @@ public class AdminList extends AppCompatActivity {
             adapter=new RecAdapter(this,list_product);
             if(list_product!=null){
                 recyclerView.setAdapter(adapter);
-                adapter.updateAdapter(list_product);
+               // adapter.updateAdapter(list_product);
             }
-
+            System.out.println("Весь список до рестарта " + list_product);
         }
         else{
             try{
                 ConnectionHelper connectionHelper =new ConnectionHelper();
                 connect=connectionHelper.connection();
                 if(connect!=null){
-                    String querry="select * from products inner join category on category.id_category = products.id_category where category.name="+"'"+category+"'"+"";
+                    String querry="select * from products inner join category on category.id_category = products.id_category where category.name="+"'"+categoryForRecycler+"'"+"";
                     Statement st=connect.createStatement();
                     ResultSet resultSet = st.executeQuery(querry);
 
@@ -131,7 +186,7 @@ public class AdminList extends AppCompatActivity {
                         productModel.setId_category(resultSet.getString("id_category"));
                         productModel.setPrice(resultSet.getString("price"));
                         list_product.add(productModel);
-                        System.out.println("По категории "+category+" внутри "+list_product.get(0));
+                        System.out.println("По категории "+categoryForRecycler+" внутри "+list_product.get(0));
                     }
                 }
                 else {
@@ -146,7 +201,7 @@ public class AdminList extends AppCompatActivity {
             adapter=new RecAdapter(this,list_product);
             if(list_product!=null){
                 recyclerView.setAdapter(adapter);
-                adapter.updateAdapter(list_product);
+                //adapter.updateAdapter(list_product);
             }
 
         }
@@ -198,8 +253,8 @@ public class AdminList extends AppCompatActivity {
         AdapterView.OnItemSelectedListener itemSelectedListener= new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String category = (String)parent.getItemAtPosition(position);
-                setRecycler(category);
+                current_category = (String)parent.getItemAtPosition(position);
+                setRecycler();
             }
 
             @Override
@@ -209,4 +264,24 @@ public class AdminList extends AppCompatActivity {
         };
         spinner_category.setOnItemSelectedListener(itemSelectedListener);
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        init();
+//    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        init();
+
+    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        System.out.println("Список во время резюма "+list_product);
+//
+//    }
 }
